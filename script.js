@@ -1,7 +1,6 @@
 const promptInput = document.getElementById("prompt");
 const styleSelect = document.getElementById("style");
 const sizeSelect = document.getElementById("size");
-const apiKeyInput = document.getElementById("apiKey");
 const generateButton = document.getElementById("generate");
 const resultImage = document.getElementById("resultImage");
 const emptyPreview = document.getElementById("emptyPreview");
@@ -9,14 +8,18 @@ const loadingOverlay = document.getElementById("loadingOverlay");
 const statusBox = document.getElementById("status");
 const downloadButton = document.getElementById("download");
 const newTabButton = document.getElementById("newTab");
+
+// Replace this with your deployed Cloudflare Worker URL, ending in /generate.
+const IMAGE_API_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/generate";
+
 let currentImageUrl = null;
 let currentObjectUrl = null;
 
 const dimensions = {
-  phone: { width: 1024, height: 1792 },
-  tablet: { width: 1152, height: 1536 },
-  desktop: { width: 1792, height: 1024 },
-  square: { width: 1024, height: 1024 }
+  phone: "1024x1536",
+  tablet: "1024x1536",
+  desktop: "1536x1024",
+  square: "1024x1024"
 };
 
 document.querySelectorAll(".chip").forEach((chip) => {
@@ -41,47 +44,38 @@ function setLoading(isLoading) {
 
 generateButton.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
-  const apiKey = apiKeyInput.value.trim();
   if (!prompt) {
     setStatus("Add a description of the wallpaper you want.", true);
     promptInput.focus();
     return;
   }
-  if (!apiKey) {
-    setStatus("Add your Pollinations API key first. Use the Get an API key link above.", true);
-    apiKeyInput.focus();
+  if (IMAGE_API_URL.includes("YOUR-WORKER-NAME")) {
+    setStatus("The secure image service is not connected yet. Finish the Cloudflare setup first.", true);
     return;
   }
 
-  const { width, height } = dimensions[sizeSelect.value];
   const fullPrompt = `${prompt}, ${styleSelect.value}, beautiful wallpaper composition, high quality, no text, no watermark`;
-  const url = new URL("https://gen.pollinations.ai/image/" + encodeURIComponent(fullPrompt));
-  url.searchParams.set("model", "black-forest-labs/flux.1-schnell");
-  url.searchParams.set("width", width);
-  url.searchParams.set("height", height);
-  url.searchParams.set("nologo", "true");
-  url.searchParams.set("safe", "true");
-  url.searchParams.set("seed", Math.floor(Math.random() * 1000000000));
-
   setLoading(true);
-  setStatus("Connecting to the image generator…");
+  setStatus("Connecting to the AI image generator…");
+
   try {
-    const response = await fetch(url.toString(), {
-      headers: { Authorization: "Bearer " + apiKey }
+    const response = await fetch(IMAGE_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: fullPrompt,
+        size: dimensions[sizeSelect.value]
+      })
     });
+
     if (!response.ok) {
       const details = await response.text().catch(() => "");
-      if (response.status === 401 || response.status === 403) {
-        throw new Error("Your API key was not accepted. Check it and try again.");
-      }
-      if (response.status === 429) {
-        throw new Error("The image service is busy or your account has reached its limit. Try again later.");
-      }
-      throw new Error("Image generation failed (" + response.status + "). " + details.slice(0, 140));
+      throw new Error(details || `Image generation failed (${response.status}).`);
     }
+
     const blob = await response.blob();
     if (!blob.type.startsWith("image/")) {
-      throw new Error("The image service returned an unexpected response. Please try again.");
+      throw new Error("The image service returned an unexpected response.");
     }
     if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
     currentObjectUrl = URL.createObjectURL(blob);
