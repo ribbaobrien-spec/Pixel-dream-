@@ -1,26 +1,29 @@
 # Pixel Dream — AI Wallpaper Studio
 
-A responsive browser-based AI wallpaper creator. Users describe an image, choose an art style and screen size, generate a wallpaper, preview it in a phone mockup, and download it.
+A responsive browser-based AI wallpaper creator. Describe an image, choose an art style and screen size, generate a wallpaper, preview it in a phone mockup, and download it.
 
-## Run locally
+## Live site
 
-Open `index.html` in a modern browser, or serve this folder with any static web server.
+[Open Pixel Dream](https://ribbaobrien-spec.github.io/Pixel-dream-/)
 
-## Image generation
+The site is a static GitHub Pages app. It needs no build step.
 
-This project uses the Pollinations image API and the `black-forest-labs/flux.1-schnell` model. A Pollinations API key is required.
+## Image generation and API key security
 
-1. Get an API key at [enter.pollinations.ai](https://enter.pollinations.ai/).
-2. Open Pixel Dream and paste the key into the API key field.
-3. Describe the wallpaper, select a style and size, and generate.
+The browser sends image requests to the Cloudflare Worker at:
 
-The key is held only in page memory and is not saved to local storage or sent to this project's own server. The browser sends it directly to Pollinations in an Authorization header. Do not put a secret API key into source code or commit one to this repository. Image generation may be subject to provider limits or charges.
+`https://hello-world-curly-water-4b09.ribbaobrien.workers.dev/generate`
 
-## Deploy with GitHub Pages
+The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Image generation requires an OpenAI API account with image generation access and may incur API charges.
 
-1. Open the repository's **Settings → Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**.
-3. Select branch **main** and folder **/ (root)**, then save.
-4. Wait for the Pages deployment to finish. GitHub will show the published site URL in the Pages section.
+The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too.
 
-This is a static site; no build step is required.
+## Deploy the static site
+
+GitHub Pages serves the root of the `main` branch. Commits to `main` publish automatically.
+
+## Configure the Worker
+
+In Cloudflare, open the `hello-world-curly-water-4b09` Worker, then go to **Settings → Variables and Secrets**. Add `OPENAI_API_KEY` as a **Secret** and save. Do not add it as a public variable or commit it to GitHub.
+
+The Worker source is in `worker.js`. Deploy that file to the Worker service after changing its code.
