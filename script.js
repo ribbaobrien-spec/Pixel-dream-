@@ -9,8 +9,8 @@ const statusBox = document.getElementById("status");
 const downloadButton = document.getElementById("download");
 const newTabButton = document.getElementById("newTab");
 
-// Replace this with your deployed Cloudflare Worker URL, ending in /generate.
-const IMAGE_API_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/generate";
+// The API key stays in the Cloudflare Worker secret; the browser calls only this endpoint.
+const IMAGE_API_URL = "https://hello-world-curly-water-4b09.ribbaobrien.workers.dev/generate";
 
 let currentImageUrl = null;
 let currentObjectUrl = null;
@@ -47,10 +47,6 @@ generateButton.addEventListener("click", async () => {
   if (!prompt) {
     setStatus("Add a description of the wallpaper you want.", true);
     promptInput.focus();
-    return;
-  }
-  if (IMAGE_API_URL.includes("YOUR-WORKER-NAME")) {
-    setStatus("The secure image service is not connected yet. Finish the Cloudflare setup first.", true);
     return;
   }
 
