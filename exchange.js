@@ -37,7 +37,86 @@
     return new Intl.DateTimeFormat([], {dateStyle:"medium"}).format(date);
   }
 
+  const swapStopWords = new Set(["the", "and", "for", "with", "from", "into", "that", "this", "your", "our", "you", "are", "was", "were", "have", "has", "need", "want", "wanted", "offer", "offered", "trade", "swap", "item", "items", "product", "products", "service", "services", "some", "any", "other"]);
+
+  function itemTerms(value) {
+    return String(value ?? "")
+      .normalize("NFKD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase()
+      .match(/[a-z0-9]+/g)?.filter((term) => term.length >= 3 && !swapStopWords.has(term)) || [];
+  }
+
+  function itemMatchScore(wantedItem, offeredItem) {
+    const wanted = itemTerms(wantedItem);
+    const offered = new Set(itemTerms(offeredItem));
+    const shared = new Set(wanted.filter((term) => offered.has(term)));
+    if (!shared.size) return 0;
+    const normalizePhrase = (value) => String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    return shared.size + (normalizePhrase(wantedItem) === normalizePhrase(offeredItem) ? 2 : 0);
+  }
+
+  function renderSwapChains() {
+    const swapFeed = document.getElementById("swapChainFeed");
+    if (!swapFeed) return;
+    const chains = [];
+    const seen = new Set();
+
+    for (let i = 0; i < listings.length - 2; i++) {
+      for (let j = i + 1; j < listings.length - 1; j++) {
+        for (let k = j + 1; k < listings.length; k++) {
+          const group = [listings[i], listings[j], listings[k]];
+          const companyNames = group.map((listing) => String(listing.company || "").trim().toLowerCase());
+          if (new Set(companyNames).size !== 3) continue;
+
+          for (const order of [[group[0], group[1], group[2]], [group[0], group[2], group[1]]]) {
+            const scores = [
+              itemMatchScore(order[0].wantedItem, order[1].offeredItem),
+              itemMatchScore(order[1].wantedItem, order[2].offeredItem),
+              itemMatchScore(order[2].wantedItem, order[0].offeredItem)
+            ];
+            if (scores.some((score) => score === 0)) continue;
+
+            const keys = order.map((listing) => String(listing.id || `${listing.company}:${listing.offeredItem}`));
+            const rotations = [
+              keys.join("|"),
+              [keys[1], keys[2], keys[0]].join("|"),
+              [keys[2], keys[0], keys[1]].join("|")
+            ];
+            const key = rotations.sort()[0];
+            if (seen.has(key)) continue;
+            seen.add(key);
+            chains.push({order, score:scores.reduce((sum, score) => sum + score, 0)});
+          }
+        }
+      }
+    }
+
+    chains.sort((a, b) => b.score - a.score);
+    if (!chains.length) {
+      swapFeed.innerHTML = '<div class="listing-message">No complete three-company swap loops yet. Add offers that match what other companies want.</div>';
+      return;
+    }
+
+    swapFeed.innerHTML = chains.slice(0, 3).map(({order}) => {
+      const steps = order.map((receiver, index) => {
+        const provider = order[(index + 1) % order.length];
+        return `<div class="swap-chain-step"><span class="swap-chain-step-company">${escapeHtml(receiver.company)}</span><span class="swap-chain-step-arrow">gets</span><strong>${escapeHtml(provider.offeredItem)}</strong><span class="swap-chain-step-provider">from ${escapeHtml(provider.company)}</span></div>`;
+      }).join("");
+      const contacts = order.map((listing) => {
+        const address = encodeURIComponent(listing.contactEmail || "");
+        return `<a href="mailto:${address}?subject=${encodeURIComponent("Possible three-company swap")}" aria-label="Email ${escapeHtml(listing.company)}">${escapeHtml(listing.company)}</a>`;
+      }).join(" · ");
+      return `<article class="swap-chain-card">
+        <div class="swap-chain-card-top"><strong>THREE-WAY MATCH</strong><span>Each company gets a wanted item</span></div>
+        <div class="swap-chain-steps">${steps}</div>
+        <p class="swap-chain-contacts">Contact all three: ${contacts}</p>
+      </article>`;
+    }).join("");
+  }
+
   function renderListings() {
+    renderSwapChains();
     const query = search.value.trim().toLowerCase();
     const matches = listings.filter((listing) =>
       [listing.company, listing.offeredItem, listing.wantedItem, listing.location, listing.details]
@@ -71,6 +150,7 @@
     if (loading) return;
     loading = true;
     feed.innerHTML = '<div class="listing-message">Loading swap offers…</div>';
+    document.getElementById("swapChainFeed").innerHTML = '<div class="listing-message">Checking for three-company matches…</div>';
     try {
       const response = await fetch(API_URL, {headers:{"Accept":"application/json"}});
       const result = await response.json().catch(() => ({}));
@@ -79,6 +159,7 @@
       renderListings();
     } catch (error) {
       feed.innerHTML = `<div class="listing-message">${escapeHtml(error.message || "Could not load swap offers. Please refresh.")}</div>`;
+      document.getElementById("swapChainFeed").innerHTML = '<div class="listing-message">Swap chain matches will appear when offers are available.</div>';
     } finally {
       loading = false;
     }
