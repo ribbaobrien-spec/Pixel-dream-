@@ -1,15 +1,15 @@
 {
   "id": "./",
-  "name": "Pixel Dream — AI Wallpaper & Logo Studio",
+  "name": "Pixel Dream — Creative Studio & Company Exchange",
   "short_name": "Pixel Dream",
-  "description": "Create and download AI-generated wallpapers and business logo ideas.",
+  "description": "Create AI visuals and post or browse company swap offers.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "background_color": "#090b16",
   "theme_color": "#090b16",
-  "categories": ["art", "photo", "graphics", "business"],
+  "categories": ["art", "photo", "graphics", "business", "shopping"],
   "icons": [
     {
       "src": "./icons/app-icon-192.png",
