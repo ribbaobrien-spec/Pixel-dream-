@@ -1,6 +1,6 @@
-# Pixel Dream — AI Wallpaper Studio
+# Pixel Dream — AI Wallpaper & Logo Studio
 
-A responsive browser-based AI wallpaper creator. Describe an image, choose an art style and screen size, generate a wallpaper, preview it in a phone mockup, and download it.
+A responsive browser-based AI creation studio. Describe a wallpaper or create a business logo idea by entering a name, tagline, business type, style and colours. Preview and download your result.
 
 ## Live site
 
@@ -14,7 +14,7 @@ The browser sends image requests to the Cloudflare Worker at:
 
 `https://hello-world-curly-water-4b09.ribbaobrien.workers.dev/generate`
 
-The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Image generation requires an OpenAI API account with image generation access and may incur API charges.
+The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Wallpaper and logo image generation require an OpenAI API account with image generation access and may incur API charges.
 
 The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too.
 
