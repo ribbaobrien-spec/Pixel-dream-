@@ -1,6 +1,6 @@
 # Pixel Dream — AI Wallpaper & Logo Studio
 
-A responsive browser-based AI creation studio. Describe a wallpaper or create a business logo idea by entering a name, tagline, business type, style and colours. Preview and download your result.
+A responsive browser-based AI creation studio with a company swap board. Create wallpapers and business logo ideas, or post items and services your company can trade for something it needs.
 
 ## Live site
 
@@ -14,9 +14,9 @@ The browser sends image requests to the Cloudflare Worker at:
 
 `https://hello-world-curly-water-4b09.ribbaobrien.workers.dev/generate`
 
-The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Wallpaper and logo image generation require an OpenAI API account with image generation access and may incur API charges.
+The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Wallpaper and logo image generation require an OpenAI API account with image generation access and may incur API charges. The company exchange stores public swap listings in Cloudflare KV. Business contact emails appear on public offers only after the poster agrees.
 
-The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too.
+The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too. The company exchange also needs a Cloudflare KV binding named `TRADE_LISTINGS` connected to the `pixel-dream-trades` namespace.
 
 ## Install Pixel Dream as a phone app
 
