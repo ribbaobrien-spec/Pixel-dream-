@@ -8,6 +8,12 @@ A responsive browser-based AI creation studio with a company swap board. Create 
 
 The site is a static GitHub Pages app. It needs no build step.
 
+## Security and privacy
+
+The app keeps the OpenAI API key in Cloudflare Worker secrets and validates server-side request sizes and fields. The company exchange is public: a poster's business contact email is shown to visitors after they check the consent box. Do not post an address that should remain private.
+
+The image-generation endpoint is publicly reachable and can incur OpenAI charges. Origin checks and browser CORS rules are not authentication and do not stop a scripted client from sending requests. Use a hard spending limit or billing alert on the OpenAI account, and configure a server-side rate limit or bot check before inviting broad public traffic.
+
 ## Image generation and API key security
 
 The browser sends image requests to the Cloudflare Worker at:
