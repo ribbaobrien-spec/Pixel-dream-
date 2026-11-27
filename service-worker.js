@@ -1,9 +1,10 @@
-const CACHE_NAME = "pixel-dream-shell-v2";
+const CACHE_NAME = "pixel-dream-shell-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./script.js",
+  "./exchange.js",
   "./pwa.js",
   "./manifest.webmanifest",
   "./icons/app-icon-192.png",
