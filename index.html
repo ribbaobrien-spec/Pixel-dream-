@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090b16">
-  <meta name="description" content="Create AI wallpapers and custom business logo ideas with Pixel Dream.">
+  <meta name="description" content="Create AI wallpapers, business logos, and swap offers with Pixel Dream.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/app-icon-192.png">
   <link rel="apple-touch-icon" href="./icons/app-icon-192.png">
-  <title>Pixel Dream — AI Wallpaper &amp; Logo Studio</title>
+  <title>Pixel Dream — Creative Studio &amp; Company Exchange</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,6 +28,11 @@
   </header>
 
   <main class="layout">
+    <div class="workspace-switch" role="tablist" aria-label="Choose a Pixel Dream area">
+      <button id="createWorkspaceTab" class="workspace-tab" type="button" role="tab" aria-selected="true" aria-controls="createWorkspace">✦ &nbsp;Create</button>
+      <button id="exchangeWorkspaceTab" class="workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="exchangeWorkspace">⇄ &nbsp;Company exchange</button>
+    </div>
+    <div id="createWorkspace" role="tabpanel" aria-labelledby="createWorkspaceTab">
     <section class="intro">
       <div class="eyebrow"><span>✧</span> IMAGINE IT. GENERATE IT.</div>
       <h1>Your ideas.<br><span>Made visible.</span></h1>
@@ -95,10 +100,41 @@
         <div class="preview-actions"><button id="download" class="download-btn" disabled>↓ Download creation</button><button id="newTab" class="icon-btn" title="Open image in a new tab" disabled>↗</button></div>
         <p class="preview-hint">Made for your screen, or your next big idea.</p>
       </div>
+    </div>
+    <section id="exchangeWorkspace" class="exchange-workspace" role="tabpanel" aria-labelledby="exchangeWorkspaceTab" hidden>
+      <section class="exchange-intro">
+        <div class="eyebrow"><span>✧</span> CONNECT. SWAP. GROW.</div>
+        <h1>Company <span>exchange.</span></h1>
+        <p class="intro-copy">Offer what your business has and find another company that needs it.</p>
+      </section>
+      <div class="exchange-grid">
+        <form id="listingForm" class="panel exchange-form">
+          <div class="panel-heading"><div><span class="step">01</span><h2>Post a swap offer</h2></div><span class="sparkle">✧</span></div>
+          <p class="exchange-note">Tell other businesses what you can trade and what you need.</p>
+          <div class="field"><label for="companyName">BUSINESS NAME</label><input id="companyName" name="company" maxlength="80" autocomplete="organization" required placeholder="e.g. Acacia &amp; Co."></div>
+          <div class="field"><label for="offeredItem">ITEM OR SERVICE YOU OFFER</label><input id="offeredItem" name="offeredItem" maxlength="120" required placeholder="e.g. 20 bags of roasted coffee"></div>
+          <div class="field"><label for="wantedItem">WHAT YOU WANT IN RETURN</label><input id="wantedItem" name="wantedItem" maxlength="120" required placeholder="e.g. printed packaging"></div>
+          <div class="field"><label for="tradeLocation">LOCATION <span class="optional">OPTIONAL</span></label><input id="tradeLocation" name="location" maxlength="100" autocomplete="address-level2" placeholder="e.g. Nairobi, Kenya"></div>
+          <div class="field"><label for="businessEmail">BUSINESS CONTACT EMAIL</label><input id="businessEmail" name="contactEmail" type="email" maxlength="160" autocomplete="email" required placeholder="you@yourcompany.com"></div>
+          <div class="field"><label for="tradeDetails">DETAILS <span class="optional">OPTIONAL</span></label><textarea id="tradeDetails" name="details" maxlength="500" placeholder="Add quantity, condition, or swap details."></textarea></div>
+          <input id="tradeWebsite" name="website" tabindex="-1" autocomplete="off" hidden>
+          <label class="consent-row"><input id="publicContactConsent" name="publicContactConsent" type="checkbox" required><span>I agree that my business name, offer, location, and contact email will be visible to visitors.</span></label>
+          <button id="postListing" class="generate-btn" type="submit"><span>⇄</span> Post my swap offer <span class="arrow">→</span></button>
+          <p id="exchangeStatus" class="status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="panel exchange-listings">
+          <div class="listing-header"><div><span class="step">02</span><h2>Offers from companies</h2></div><button id="refreshListings" class="refresh-btn" type="button">↻ Refresh</button></div>
+          <p class="exchange-note">Contact a company directly to arrange a swap. Pixel Dream does not handle payments or deliveries.</p>
+          <label class="search-label" for="listingSearch">SEARCH OFFERS</label>
+          <input id="listingSearch" type="search" placeholder="Search item, company, or location">
+          <div id="listingFeed" class="listing-feed" aria-live="polite"><div class="listing-message">Open Company exchange to load swap offers.</div></div>
+        </div>
+      </div>
     </section>
     <footer><span>✦ PIXEL DREAM</span><span>Made for the screens and businesses you love.</span></footer>
   </main>
   <script src="script.js"></script>
+  <script src="exchange.js"></script>
   <script src="pwa.js" defer></script>
 </body>
 </html>
