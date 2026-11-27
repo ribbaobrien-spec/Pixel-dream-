@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hello-world-curly-water-4b09.ribbaobrien.workers.dev; manifest-src 'self'; worker-src 'self'; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hello-world-curly-water-4b09.ribbaobrien.workers.dev https://challenges.cloudflare.com; manifest-src 'self'; worker-src 'self'; frame-src https://challenges.cloudflare.com; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#090b16">
   <meta name="description" content="Create AI wallpapers, business logos, and swap offers with Pixel Dream.">
@@ -77,6 +77,10 @@
           <p class="logo-help">Add your business name, then choose a style and colour palette.</p>
         </div>
 
+        <div class="turnstile-check">
+          <p>Complete the security check to create an image.</p>
+          <div id="imageChallenge" class="turnstile-widget" aria-label="Image creation security check"></div>
+        </div>
         <button id="generate" class="generate-btn" type="button"><span>✦</span> Generate my wallpaper <span class="arrow">→</span></button>
         <p class="fine-print">Powered by AI image generation. Usage may incur API charges.</p>
         <div id="status" class="status" role="status" aria-live="polite"></div>
@@ -121,6 +125,10 @@
           <div class="field"><label for="tradeDetails">DETAILS <span class="optional">OPTIONAL</span></label><textarea id="tradeDetails" name="details" maxlength="500" placeholder="Add quantity, condition, or swap details."></textarea></div>
           <input id="tradeWebsite" name="website" tabindex="-1" autocomplete="off" hidden>
           <label class="consent-row"><input id="publicContactConsent" name="publicContactConsent" type="checkbox" required><span>I agree that my business name, offer, location, and contact email will be visible to visitors.</span></label>
+          <div class="turnstile-check">
+            <p>Complete the security check to post an offer.</p>
+            <div id="swapChallenge" class="turnstile-widget" aria-label="Offer posting security check"></div>
+          </div>
           <button id="postListing" class="generate-btn" type="submit"><span>⇄</span> Post my swap offer <span class="arrow">→</span></button>
           <p id="exchangeStatus" class="status" role="status" aria-live="polite"></p>
         </form>
@@ -142,6 +150,8 @@
   </main>
   <script src="script.js"></script>
   <script src="exchange.js"></script>
+  <script src="./turnstile.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=pixelDreamTurnstileLoaded&amp;render=explicit" async defer></script>
   <script src="pwa.js" defer></script>
 </body>
 </html>

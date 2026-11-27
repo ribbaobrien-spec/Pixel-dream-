@@ -12,7 +12,7 @@ The site is a static GitHub Pages app. It needs no build step.
 
 The app keeps the OpenAI API key in Cloudflare Worker secrets and validates server-side request sizes and fields. The company exchange is public: a poster's business contact email is shown to visitors after they check the consent box. Do not post an address that should remain private.
 
-The image-generation endpoint is publicly reachable and can incur OpenAI charges. Origin checks and browser CORS rules are not authentication and do not stop a scripted client from sending requests. Use a hard spending limit or billing alert on the OpenAI account, and configure a server-side rate limit or bot check before inviting broad public traffic.
+Image creation and new swap offers require a Cloudflare Turnstile check validated by the Worker. This helps reduce automated abuse, but does not guarantee that every request is from a person. The image-generation endpoint can incur OpenAI charges, so set a hard spending limit or billing alert on the OpenAI account.
 
 ## Image generation and API key security
 
@@ -22,7 +22,7 @@ The browser sends image requests to the Cloudflare Worker at:
 
 The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudflare. The API key must stay in the Worker secret store; never put it in browser code, HTML, or this repository. Wallpaper and logo image generation require an OpenAI API account with image generation access and may incur API charges. The company exchange stores public swap listings in Cloudflare KV. Business contact emails appear on public offers only after the poster agrees.
 
-The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too. The company exchange also needs a Cloudflare KV binding named `TRADE_LISTINGS` connected to the `pixel-dream-trades` namespace.
+The Worker accepts requests only from the Pixel Dream GitHub Pages origin and validates Turnstile tokens server-side for image generation and new swap offers. Cloudflare Worker settings need the `TURNSTILE_SECRET` secret as well as the existing `OPENAI_API_KEY`. If you move the site to a custom domain, update the Worker’s allowed origin and the Turnstile widget hostname too. The company exchange also needs a Cloudflare KV binding named `TRADE_LISTINGS` connected to the `pixel-dream-trades` namespace.
 
 ## Install Pixel Dream as a phone app
 

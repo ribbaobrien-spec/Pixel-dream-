@@ -19,6 +19,29 @@ function exceedsText(value, maximum) {
   return typeof value === "string" && value.trim().length > maximum;
 }
 
+async function verifyTurnstile(token, env, expectedAction) {
+  const secret = env.TURNSTILE_SECRET;
+  if (!secret || typeof token !== "string" || !token || token.length > 2048) return false;
+
+  try {
+    const form = new URLSearchParams();
+    form.set("secret", secret);
+    form.set("response", token);
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body: form
+    });
+    if (!response.ok) return false;
+    const result = await response.json();
+    return result?.success === true &&
+      result.hostname === "ribbaobrien-spec.github.io" &&
+      result.action === expectedAction;
+  } catch {
+    return false;
+  }
+}
+
 class RequestInputError extends Error {
   constructor(message, status) {
     super(message);
@@ -131,6 +154,9 @@ async function handleTrades(request, env, corsHeaders) {
       if (!company || !offeredItem || !wantedItem || !validEmail) {
         return jsonResponse({error:"Add a business name, what you offer, what you want, and a valid business email."},400,corsHeaders);
       }
+      if (!await verifyTurnstile(body.turnstileToken, env, "swap-post")) {
+        return jsonResponse({error:"Complete the security check before posting your offer."},403,corsHeaders);
+      }
 
       const current = await env.TRADE_LISTINGS.list({prefix:"listing:",limit:500});
       if (current.keys.length >= 500) {
@@ -227,6 +253,9 @@ export default {
       }
       if (!env.OPENAI_API_KEY) {
         return new Response("Image service is not configured.",{status:503,headers:corsHeaders});
+      }
+      if (!await verifyTurnstile(body.turnstileToken, env, "image-generation")) {
+        return new Response("Complete the security check before creating an image.",{status:403,headers:{...corsHeaders,"Content-Type":"text/plain; charset=utf-8"}});
       }
 
       const upstream = await fetch("https://api.openai.com/v1/images/generations",{

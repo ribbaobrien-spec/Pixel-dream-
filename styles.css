@@ -82,3 +82,7 @@
 .swap-chain-contacts a{color:#d0bdff;text-decoration:none}
 .swap-chain-contacts a:hover{text-decoration:underline}
 @media(max-width:480px){.swap-chains{padding:13px}.swap-chain-step{grid-template-columns:1fr auto 1.2fr;gap:5px}.swap-chain-step-provider{grid-column:1/-1;padding-left:2px;color:#aaa4c3}.swap-chain-heading h3{font-size:13px}.swap-chain-label{font-size:7px;padding:5px 6px}}
+
+.turnstile-check{margin-top:15px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#ffffff05}
+.turnstile-check p{margin:0 0 10px;text-align:center;color:#aaa7bd;font-size:10px;line-height:1.5}
+.turnstile-widget{display:flex;justify-content:center;min-height:65px}

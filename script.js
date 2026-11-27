@@ -130,6 +130,12 @@ generateButton.addEventListener("click", async () => {
     imageSize = dimensions[sizeSelect.value];
   }
 
+  const turnstileToken = window.pixelDreamTurnstile?.getToken("imageChallenge");
+  if (!turnstileToken) {
+    setStatus("Complete the security check above before creating an image.", true);
+    return;
+  }
+
   setLoading(true);
   setStatus("Connecting to the AI image generator…");
 
@@ -139,7 +145,8 @@ generateButton.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         prompt: fullPrompt,
-        size: imageSize
+        size: imageSize,
+        turnstileToken
       })
     });
 
@@ -164,6 +171,7 @@ generateButton.addEventListener("click", async () => {
   } catch (error) {
     setStatus(error.message || "Something went wrong. Please try again.", true);
   } finally {
+    window.pixelDreamTurnstile?.reset("imageChallenge");
     setLoading(false);
   }
 });

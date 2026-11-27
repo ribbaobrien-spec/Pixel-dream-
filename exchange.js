@@ -186,6 +186,11 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
+    const turnstileToken = window.pixelDreamTurnstile?.getToken("swapChallenge");
+    if (!turnstileToken) {
+      setExchangeStatus("Complete the security check above before posting your offer.", true);
+      return;
+    }
     postButton.disabled = true;
     setExchangeStatus("Posting your swap offer…");
 
@@ -197,7 +202,8 @@
       contactEmail: document.getElementById("businessEmail").value.trim(),
       details: document.getElementById("tradeDetails").value.trim(),
       publicContactConsent: document.getElementById("publicContactConsent").checked,
-      website: document.getElementById("tradeWebsite").value.trim()
+      website: document.getElementById("tradeWebsite").value.trim(),
+      turnstileToken
     };
 
     try {
@@ -219,6 +225,7 @@
     } catch (error) {
       setExchangeStatus(error.message || "Could not post your swap offer. Please try again.", true);
     } finally {
+      window.pixelDreamTurnstile?.reset("swapChallenge");
       postButton.disabled = false;
     }
   });
