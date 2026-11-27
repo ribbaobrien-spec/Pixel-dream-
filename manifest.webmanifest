@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "Pixel Dream — AI Wallpaper Studio",
+  "short_name": "Pixel Dream",
+  "description": "Create and save AI-generated wallpapers for your phone, tablet, or desktop.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#090b16",
+  "theme_color": "#090b16",
+  "categories": ["art", "photo", "graphics"],
+  "icons": [
+    {
+      "src": "./icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

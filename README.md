@@ -18,6 +18,14 @@ The Worker calls OpenAI using the `OPENAI_API_KEY` secret configured in Cloudfla
 
 The Worker accepts requests only from the Pixel Dream GitHub Pages origin. If you move the site to a custom domain, update the Worker’s allowed origin too.
 
+## Install Pixel Dream as a phone app
+
+On Android, open the live site in Chrome and tap **Install app** when it appears, or choose **Install app** / **Add to Home screen** from Chrome’s menu.
+
+On iPhone or iPad, open the site in Safari, tap **Share**, then **Add to Home Screen**.
+
+After the first visit, the studio shell can open offline. Image generation still needs an internet connection.
+
 ## Deploy the static site
 
 GitHub Pages serves the root of the `main` branch. Commits to `main` publish automatically.
