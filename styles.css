@@ -61,3 +61,24 @@
 .remove-listing:hover{border-color:#ff9caa77;color:#ffc3cc}
 @media(max-width:800px){.exchange-grid{grid-template-columns:1fr}.exchange-listings{min-height:360px}.exchange-intro{padding-top:28px}}
 @media(max-width:480px){.workspace-switch{gap:7px;margin-bottom:18px}.workspace-tab{min-height:40px;padding:0 13px;font-size:10px}.exchange-intro{padding:24px 0 22px}.exchange-form,.exchange-listings{padding:18px}.listing-card{padding:13px}}
+
+
+.swap-chains{margin:18px 0 20px;padding:16px;border:1px solid #c1a5ff35;border-radius:15px;background:linear-gradient(145deg,#a78bfa0d,#ec8bd807)}
+.swap-chain-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.swap-chain-heading>div{display:flex;align-items:center;gap:9px}
+.swap-chain-heading h3{font:600 14px "Space Grotesk",sans-serif;margin:0}
+.swap-chain-label{font-size:8px;letter-spacing:.8px;color:#cbb9ff;background:#a78bfa16;border:1px solid #a78bfa33;border-radius:20px;padding:6px 8px;white-space:nowrap}
+.swap-chain-intro{margin:9px 0 12px;color:#9693ad;font-size:10px;line-height:1.5}
+.swap-chain-feed{display:grid;gap:10px}
+.swap-chain-card{padding:13px;border:1px solid var(--line);border-radius:12px;background:#0d10208c}
+.swap-chain-card-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;color:#aaa4c3;font-size:9px}
+.swap-chain-card-top strong{color:#c9b5ff;font-weight:700;letter-spacing:.6px}
+.swap-chain-steps{display:grid;gap:7px}
+.swap-chain-step{display:grid;grid-template-columns:minmax(70px,.8fr) auto minmax(80px,1fr) minmax(70px,.8fr);align-items:center;gap:7px;padding:8px 9px;border-radius:9px;background:#ffffff06;color:#c1bdd2;font-size:9px;line-height:1.4}
+.swap-chain-step strong{color:#f0eaff;font-size:10px;overflow-wrap:anywhere}
+.swap-chain-step-company{color:#d5c8ff;font-weight:700;overflow-wrap:anywhere}
+.swap-chain-step-arrow{color:#a78bfa}
+.swap-chain-contacts{margin:11px 0 0;color:#9693ad;font-size:9px;line-height:1.8}
+.swap-chain-contacts a{color:#d0bdff;text-decoration:none}
+.swap-chain-contacts a:hover{text-decoration:underline}
+@media(max-width:480px){.swap-chains{padding:13px}.swap-chain-step{grid-template-columns:1fr auto 1.2fr;gap:5px}.swap-chain-step-provider{grid-column:1/-1;padding-left:2px;color:#aaa4c3}.swap-chain-heading h3{font-size:13px}.swap-chain-label{font-size:7px;padding:5px 6px}}
