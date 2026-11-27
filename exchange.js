@@ -42,7 +42,7 @@
   function itemTerms(value) {
     return String(value ?? "")
       .normalize("NFKD")
-      .replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/\p{M}/gu, "")
       .toLowerCase()
       .match(/[a-z0-9]+/g)?.filter((term) => term.length >= 3 && !swapStopWords.has(term)) || [];
   }
