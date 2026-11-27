@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090b16">
-  <meta name="description" content="Dream up beautiful AI wallpapers for your phone.">
+  <meta name="description" content="Create AI wallpapers and custom business logo ideas with Pixel Dream.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/app-icon-192.png">
   <link rel="apple-touch-icon" href="./icons/app-icon-192.png">
-  <title>Pixel Dream — AI Wallpaper Studio</title>
+  <title>Pixel Dream — AI Wallpaper &amp; Logo Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,36 +22,56 @@
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <header class="topbar">
     <a class="brand" href="#" aria-label="Pixel Dream home"><span class="brand-mark">✦</span><span>pixel<span class="brand-light">dream</span></span></a>
-    <span class="top-note"><span class="live-dot"></span> YOUR PERSONAL WALLPAPER STUDIO</span>
+    <span class="top-note"><span class="live-dot"></span> YOUR WALLPAPER &amp; LOGO STUDIO</span>
     <a class="github-link" href="https://github.com/ribbaobrien-spec/Pixel-dream-" target="_blank" rel="noreferrer">View project ↗</a>
-  <button id="installApp" class="install-btn" type="button" hidden>Install app</button>
+    <button id="installApp" class="install-btn" type="button" hidden>Install app</button>
   </header>
 
   <main class="layout">
     <section class="intro">
       <div class="eyebrow"><span>✧</span> IMAGINE IT. GENERATE IT.</div>
-      <h1>Your screen.<br><span>Your universe.</span></h1>
-      <p class="intro-copy">Turn a few words into a wallpaper that feels like it was made just for you.</p>
-      <div class="feature-row"><span>✦ AI-generated art</span><span>▣ Phone-ready sizes</span><span>♡ Save your favourites</span></div>
+      <h1>Your ideas.<br><span>Made visible.</span></h1>
+      <p class="intro-copy">Create a wallpaper for your screen or a fresh logo idea for your business.</p>
+      <div class="feature-row"><span>✦ AI-generated art</span><span>▣ Phone-ready sizes</span><span>♡ Download your creations</span></div>
     </section>
 
-    <section class="studio-grid">
+    <div class="mode-switch" role="tablist" aria-label="Choose what to create">
+      <button id="wallpaperTab" class="mode-tab" type="button" role="tab" aria-selected="true" aria-controls="wallpaperOptions">▣ &nbsp;Wallpaper</button>
+      <button id="logoTab" class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="logoOptions">✦ &nbsp;Business logo</button>
+    </div>
+
+    <section class="studio-grid" id="studioGrid">
       <div class="panel controls-panel">
-        <div class="panel-heading"><div><span class="step">01</span><h2>Describe your dream</h2></div><span class="sparkle">✧</span></div>
-        <label for="prompt">WHAT SHOULD YOUR WALLPAPER LOOK LIKE?</label>
-        <textarea id="prompt" maxlength="500" placeholder="A glowing futuristic city floating above the clouds, dreamy purple sky, cinematic lighting..."></textarea>
-        <div class="prompt-examples">
-          <span class="muted-label">TRY A PROMPT</span>
-          <button class="chip" data-prompt="A majestic black panther in a neon-lit cyberpunk city, rain reflections, cinematic, ultra detailed">🐆 Neon panther</button>
-          <button class="chip" data-prompt="A peaceful Japanese garden at night, glowing lanterns, pink cherry blossoms, dreamy moonlight">🌸 Dream garden</button>
-          <button class="chip" data-prompt="An astronaut drifting through a colourful galaxy, planets and stars, breathtaking cosmic art">🚀 Deep space</button>
+        <div class="panel-heading"><div><span class="step">01</span><h2 id="panelTitle">Describe your dream</h2></div><span class="sparkle">✧</span></div>
+
+        <div id="wallpaperOptions" role="tabpanel" aria-labelledby="wallpaperTab">
+          <label for="prompt">WHAT SHOULD YOUR WALLPAPER LOOK LIKE?</label>
+          <textarea id="prompt" maxlength="500" placeholder="A glowing futuristic city floating above the clouds, dreamy purple sky, cinematic lighting..."></textarea>
+          <div class="prompt-examples">
+            <span class="muted-label">TRY A PROMPT</span>
+            <button class="chip" data-prompt="A majestic black panther in a neon-lit cyberpunk city, rain reflections, cinematic, ultra detailed">🐆 Neon panther</button>
+            <button class="chip" data-prompt="A peaceful Japanese garden at night, glowing lanterns, pink cherry blossoms, dreamy moonlight">🌸 Dream garden</button>
+            <button class="chip" data-prompt="An astronaut drifting through a colourful galaxy, planets and stars, breathtaking cosmic art">🚀 Deep space</button>
+          </div>
+          <div class="field-grid">
+            <div class="field"><label for="style">ART STYLE</label><select id="style"><option value="digital art, highly detailed">Digital art</option><option value="photorealistic photography">Photorealistic</option><option value="anime illustration">Anime</option><option value="3D render, polished">3D render</option><option value="minimalist abstract art">Minimal</option><option value="watercolour painting">Watercolour</option><option value="retro 16-bit pixel art">Pixel art</option><option value="surreal fantasy concept art">Fantasy</option></select></div>
+            <div class="field"><label for="size">WALLPAPER SIZE</label><select id="size"><option value="phone">Phone · 2:3</option><option value="tablet">Tablet · 2:3</option><option value="desktop">Desktop · 3:2</option><option value="square">Square · 1:1</option></select></div>
+          </div>
         </div>
-        <div class="field-grid">
-          <div class="field"><label for="style">ART STYLE</label><select id="style"><option value="digital art, highly detailed">Digital art</option><option value="photorealistic photography">Photorealistic</option><option value="anime illustration">Anime</option><option value="3D render, polished">3D render</option><option value="minimalist abstract art">Minimal</option><option value="watercolour painting">Watercolour</option><option value="retro 16-bit pixel art">Pixel art</option><option value="surreal fantasy concept art">Fantasy</option></select></div>
-          <div class="field"><label for="size">WALLPAPER SIZE</label><select id="size"><option value="phone">Phone · 2:3</option><option value="tablet">Tablet · 2:3</option><option value="desktop">Desktop · 3:2</option><option value="square">Square · 1:1</option></select></div>
+
+        <div id="logoOptions" role="tabpanel" aria-labelledby="logoTab" hidden>
+          <div class="field-grid logo-field-grid">
+            <div class="field"><label for="businessName">BUSINESS NAME</label><input id="businessName" maxlength="60" autocomplete="organization" placeholder="e.g. Acacia &amp; Co."></div>
+            <div class="field"><label for="tagline">TAGLINE <span class="optional">OPTIONAL</span></label><input id="tagline" maxlength="80" placeholder="e.g. Made with care"></div>
+            <div class="field"><label for="industry">BUSINESS TYPE</label><select id="industry"><option value="food and drink">Food &amp; drink</option><option value="beauty and wellness">Beauty &amp; wellness</option><option value="technology">Technology</option><option value="retail and fashion">Retail &amp; fashion</option><option value="professional services">Professional services</option><option value="construction and home services">Construction &amp; home services</option><option value="education">Education</option><option value="travel and hospitality">Travel &amp; hospitality</option><option value="another industry">Another industry</option></select></div>
+            <div class="field"><label for="logoStyle">LOGO STYLE</label><select id="logoStyle"><option value="minimal geometric">Minimal &amp; geometric</option><option value="bold modern">Bold &amp; modern</option><option value="elegant monogram">Elegant monogram</option><option value="playful illustrated">Playful &amp; illustrated</option><option value="classic badge">Classic badge</option><option value="organic hand-drawn">Organic &amp; hand-drawn</option></select></div>
+            <div class="field"><label for="logoColors">COLOURS</label><select id="logoColors"><option value="deep navy and warm gold">Navy &amp; gold</option><option value="black and white">Black &amp; white</option><option value="forest green and cream">Forest &amp; cream</option><option value="terracotta and sand">Terracotta &amp; sand</option><option value="violet and soft pink">Violet &amp; pink</option><option value="bright colours chosen to suit the brand">Choose for me</option></select></div>
+          </div>
+          <p class="logo-help">Add your business name, then choose a style and colour palette.</p>
         </div>
-        <button id="generate" class="generate-btn"><span>✦</span> Generate my wallpaper <span class="arrow">→</span></button>
-        <p class="fine-print">Powered by OpenAI image generation. Usage may incur API charges.</p>
+
+        <button id="generate" class="generate-btn" type="button"><span>✦</span> Generate my wallpaper <span class="arrow">→</span></button>
+        <p class="fine-print">Powered by AI image generation. Usage may incur API charges.</p>
         <div id="status" class="status" role="status" aria-live="polite"></div>
       </div>
 
@@ -62,21 +82,21 @@
             <div class="phone-camera"></div>
             <div id="emptyPreview" class="empty-preview">
               <div class="empty-icon">✧</div>
-              <strong>Your next favourite<br>wallpaper starts here.</strong>
-              <span>Write a prompt and hit generate</span>
+              <strong id="emptyTitle">Your next favourite<br>wallpaper starts here.</strong>
+              <span id="emptyHint">Write a prompt and hit generate</span>
             </div>
             <img id="resultImage" alt="Your generated AI wallpaper" hidden>
-            <div id="loadingOverlay" class="loading-overlay" hidden><div class="loader"></div><span>Dreaming up your wallpaper…</span><small>This can take a little moment</small></div>
+            <div id="loadingOverlay" class="loading-overlay" hidden><div class="loader"></div><span id="loadingText">Dreaming up your wallpaper…</span><small>This can take a little moment</small></div>
             <div class="phone-clock" id="phoneClock">09:41</div>
             <div class="phone-date">Tuesday, November 11</div>
           </div>
           <div class="preview-glow"></div>
         </div>
-        <div class="preview-actions"><button id="download" class="download-btn" disabled>↓ Download wallpaper</button><button id="newTab" class="icon-btn" title="Open image in a new tab" disabled>↗</button></div>
-        <p class="preview-hint">Made for your screen. Ready when you are.</p>
+        <div class="preview-actions"><button id="download" class="download-btn" disabled>↓ Download creation</button><button id="newTab" class="icon-btn" title="Open image in a new tab" disabled>↗</button></div>
+        <p class="preview-hint">Made for your screen, or your next big idea.</p>
       </div>
     </section>
-    <footer><span>✦ PIXEL DREAM</span><span>Made for the screens you love.</span></footer>
+    <footer><span>✦ PIXEL DREAM</span><span>Made for the screens and businesses you love.</span></footer>
   </main>
   <script src="script.js"></script>
   <script src="pwa.js" defer></script>
