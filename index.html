@@ -125,6 +125,11 @@
         <div class="panel exchange-listings">
           <div class="listing-header"><div><span class="step">02</span><h2>Offers from companies</h2></div><button id="refreshListings" class="refresh-btn" type="button">↻ Refresh</button></div>
           <p class="exchange-note">Contact a company directly to arrange a swap. Pixel Dream does not handle payments or deliveries.</p>
+          <section class="swap-chains" aria-labelledby="swapChainTitle">
+            <div class="swap-chain-heading"><div><span class="step">✧</span><h3 id="swapChainTitle">Possible swap chains</h3></div><span class="swap-chain-label">THREE COMPANIES</span></div>
+            <p class="swap-chain-intro">Find a three-way match where each company gets something it wants.</p>
+            <div id="swapChainFeed" class="swap-chain-feed" aria-live="polite"><div class="listing-message">Open Company exchange to find possible swap chains.</div></div>
+          </section>
           <label class="search-label" for="listingSearch">SEARCH OFFERS</label>
           <input id="listingSearch" type="search" placeholder="Search item, company, or location">
           <div id="listingFeed" class="listing-feed" aria-live="polite"><div class="listing-message">Open Company exchange to load swap offers.</div></div>
