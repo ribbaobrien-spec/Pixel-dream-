@@ -11,8 +11,68 @@ function jsonResponse(data, status, corsHeaders) {
   });
 }
 
-function cleanText(value, maximum) {
-  return typeof value === "string" ? value.trim().slice(0, maximum) : "";
+function cleanText(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function exceedsText(value, maximum) {
+  return typeof value === "string" && value.trim().length > maximum;
+}
+
+class RequestInputError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function readJsonRequest(request, maximumBytes) {
+  const contentType = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+  if (contentType !== "application/json") {
+    throw new RequestInputError("Send this request as JSON.", 415);
+  }
+
+  const contentLength = request.headers.get("Content-Length");
+  if (contentLength && Number.isFinite(Number(contentLength)) && Number(contentLength) > maximumBytes) {
+    throw new RequestInputError("The request is too large.", 413);
+  }
+
+  if (!request.body) throw new RequestInputError("A JSON request body is required.", 400);
+  const reader = request.body.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const part = await reader.read();
+      if (part.done) break;
+      totalBytes += part.value.byteLength;
+      if (totalBytes > maximumBytes) {
+        try { await reader.cancel(); } catch {}
+        throw new RequestInputError("The request is too large.", 413);
+      }
+      chunks.push(part.value);
+    }
+  } finally {
+    try { reader.releaseLock(); } catch {}
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  let value;
+  try {
+    value = JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    throw new RequestInputError("The request body is not valid JSON.", 400);
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new RequestInputError("The JSON body must be an object.", 400);
+  }
+  return value;
 }
 
 function publicListing(record) {
@@ -33,28 +93,40 @@ async function handleTrades(request, env, corsHeaders) {
       const records = await Promise.all(result.keys.map((key) => env.TRADE_LISTINGS.get(key.name,"json")));
       const listings = records
         .filter((record) => record && record.id)
-        .sort((a,b) => b.createdAt.localeCompare(a.createdAt))
+        .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
         .slice(0,200)
         .map(publicListing);
       return jsonResponse({listings},200,corsHeaders);
     }
 
     if (method === "POST") {
-      const body = await request.json();
-      if (cleanText(body.website,120)) {
+      const body = await readJsonRequest(request, 4096);
+      if (cleanText(body.website)) {
         return jsonResponse({error:"Could not post that offer."},400,corsHeaders);
       }
       if (body.publicContactConsent !== true) {
         return jsonResponse({error:"Please agree to show your business contact on the public offer."},400,corsHeaders);
       }
 
-      const company = cleanText(body.company,80);
-      const offeredItem = cleanText(body.offeredItem,120);
-      const wantedItem = cleanText(body.wantedItem,120);
-      const location = cleanText(body.location,100);
-      const contactEmail = cleanText(body.contactEmail,160);
-      const details = cleanText(body.details,500);
+      const company = cleanText(body.company);
+      const offeredItem = cleanText(body.offeredItem);
+      const wantedItem = cleanText(body.wantedItem);
+      const location = cleanText(body.location);
+      const contactEmail = cleanText(body.contactEmail);
+      const details = cleanText(body.details);
       const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contactEmail);
+
+      if (
+        exceedsText(body.company, 80) ||
+        exceedsText(body.offeredItem, 120) ||
+        exceedsText(body.wantedItem, 120) ||
+        exceedsText(body.location, 100) ||
+        exceedsText(body.contactEmail, 160) ||
+        exceedsText(body.details, 500) ||
+        exceedsText(body.website, 120)
+      ) {
+        return jsonResponse({error:"One or more fields are too long."},400,corsHeaders);
+      }
 
       if (!company || !offeredItem || !wantedItem || !validEmail) {
         return jsonResponse({error:"Add a business name, what you offer, what you want, and a valid business email."},400,corsHeaders);
@@ -82,10 +154,11 @@ async function handleTrades(request, env, corsHeaders) {
     }
 
     if (method === "DELETE") {
-      const body = await request.json();
-      const id = cleanText(body.id,80);
-      const deleteToken = cleanText(body.deleteToken,80);
-      if (!id || !deleteToken) {
+      const body = await readJsonRequest(request, 1024);
+      const id = cleanText(body.id);
+      const deleteToken = cleanText(body.deleteToken);
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidPattern.test(id) || !uuidPattern.test(deleteToken)) {
         return jsonResponse({error:"Missing offer removal details."},400,corsHeaders);
       }
       const key = `listing:${id}`;
@@ -100,7 +173,10 @@ async function handleTrades(request, env, corsHeaders) {
 
     return jsonResponse({error:"Method not allowed."},405,corsHeaders);
   } catch (error) {
-    console.error("Company exchange request failed:",error);
+    if (error instanceof RequestInputError) {
+      return jsonResponse({error:error.message},error.status,corsHeaders);
+    }
+    console.error("Company exchange request failed:",error instanceof Error ? error.name : "UnknownError");
     return jsonResponse({error:"The company exchange could not complete that request."},500,corsHeaders);
   }
 }
@@ -108,16 +184,23 @@ async function handleTrades(request, env, corsHeaders) {
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
+    const securityHeaders = {
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer",
+      "Cache-Control": "no-store"
+    };
     const corsHeaders = {
-      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+      ...securityHeaders,
       "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
+      "Access-Control-Max-Age": "600",
       "Vary": "Origin"
     };
 
     if (origin !== ALLOWED_ORIGIN) {
-      return new Response("Origin not allowed", {status:403,headers:corsHeaders});
+      return new Response("Origin not allowed", {status:403,headers:securityHeaders});
     }
+    corsHeaders["Access-Control-Allow-Origin"] = ALLOWED_ORIGIN;
     if (request.method === "OPTIONS") {
       return new Response(null,{status:204,headers:corsHeaders});
     }
@@ -131,8 +214,8 @@ export default {
     }
 
     try {
-      const body = await request.json();
-      const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+      const body = await readJsonRequest(request, 4096);
+      const prompt = cleanText(body.prompt);
       const size = body.size;
       const allowedSizes = new Set(["1024x1536","1536x1024","1024x1024"]);
 
@@ -163,8 +246,7 @@ export default {
       });
 
       if (!upstream.ok) {
-        const details = await upstream.text();
-        console.error("OpenAI image request failed:",upstream.status,details.slice(0,500));
+        console.error("OpenAI image request failed:",upstream.status);
         const status = upstream.status === 429 ? 429 : 502;
         return new Response(
           status === 429 ? "Image service is busy or the API usage limit was reached. Try again later." :
@@ -175,7 +257,7 @@ export default {
 
       const result = await upstream.json();
       const encoded = result?.data?.[0]?.b64_json;
-      if (!encoded) {
+      if (typeof encoded !== "string" || encoded.length > 20 * 1024 * 1024 || !/^[A-Za-z0-9+/]+={0,2}$/.test(encoded)) {
         return new Response("The image service returned no image.",{status:502,headers:corsHeaders});
       }
       const binary = Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));
@@ -188,8 +270,11 @@ export default {
         }
       });
     } catch (error) {
-      console.error("Worker error:",error);
-      return new Response("Unexpected server error. Please try again.",{status:500,headers:corsHeaders});
+      if (error instanceof RequestInputError) {
+        return new Response(error.message,{status:error.status,headers:{...corsHeaders,"Content-Type":"text/plain; charset=utf-8"}});
+      }
+      console.error("Worker error:",error instanceof Error ? error.name : "UnknownError");
+      return new Response("Unexpected server error. Please try again.",{status:500,headers:{...corsHeaders,"Content-Type":"text/plain; charset=utf-8"}});
     }
   }
 };
