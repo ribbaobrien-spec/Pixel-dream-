@@ -2,7 +2,8 @@
   const SITE_KEY = "0x4AAAAAAGVnhybMYBNUectZ";
   const configs = [
     ["imageChallenge", "image-generation"],
-    ["swapChallenge", "swap-post"]
+    ["swapChallenge", "swap-post"],
+    ["ideaChallenge", "idea-post"]
   ];
   const tokens = new Map();
   const widgetIds = new Map();

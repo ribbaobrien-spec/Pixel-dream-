@@ -207,6 +207,117 @@ async function handleTrades(request, env, corsHeaders) {
   }
 }
 
+async function handleIdeas(request, env, corsHeaders) {
+  const method = request.method;
+
+  if (!env.TRADE_LISTINGS) {
+    return jsonResponse({error:"The idea board storage is not connected yet."},503,corsHeaders);
+  }
+
+  try {
+    if (method === "GET") {
+      const result = await env.TRADE_LISTINGS.list({prefix:"idea:",limit:500});
+      const records = await Promise.all(result.keys.map((key) => env.TRADE_LISTINGS.get(key.name,"json")));
+      const messages = records
+        .filter((record) => record && record.id && typeof record.message === "string")
+        .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+        .slice(0,200)
+        .map((record) => ({
+          id:record.id,
+          displayName:cleanText(record.displayName) || "Dreamer",
+          message:cleanText(record.message),
+          inReplyTo:cleanText(record.inReplyTo),
+          inReplyToName:cleanText(record.inReplyToName),
+          createdAt:cleanText(record.createdAt)
+        }));
+      return jsonResponse({messages},200,corsHeaders);
+    }
+
+    if (method === "POST") {
+      const body = await readJsonRequest(request,4096);
+      if (cleanText(body.website)) {
+        return jsonResponse({error:"Could not post that message."},400,corsHeaders);
+      }
+
+      const displayName = cleanText(body.displayName) || "Dreamer";
+      const message = cleanText(body.message);
+      const inReplyTo = cleanText(body.inReplyTo);
+
+      if (
+        exceedsText(body.displayName,40) ||
+        exceedsText(body.message,500) ||
+        exceedsText(body.inReplyTo,36) ||
+        exceedsText(body.website,120)
+      ) {
+        return jsonResponse({error:"One or more fields are too long."},400,corsHeaders);
+      }
+      if (message.length < 3) {
+        return jsonResponse({error:"Write a message of at least 3 characters."},400,corsHeaders);
+      }
+      if (!await verifyTurnstile(body.turnstileToken,env,"idea-post")) {
+        return jsonResponse({error:"Complete the security check before sharing your message."},403,corsHeaders);
+      }
+
+      let inReplyToName = "";
+      if (inReplyTo) {
+        const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidPattern.test(inReplyTo)) {
+          return jsonResponse({error:"That conversation message could not be found."},400,corsHeaders);
+        }
+        const parent = await env.TRADE_LISTINGS.get("idea:"+inReplyTo,"json");
+        if (!parent || !parent.id) {
+          return jsonResponse({error:"That conversation message could not be found."},404,corsHeaders);
+        }
+        inReplyToName = cleanText(parent.displayName) || "Dreamer";
+      }
+
+      const current = await env.TRADE_LISTINGS.list({prefix:"idea:",limit:500});
+      if (current.keys.length >= 500) {
+        return jsonResponse({error:"The idea board is full for now. Please check back later."},429,corsHeaders);
+      }
+
+      const id = crypto.randomUUID();
+      const deleteToken = crypto.randomUUID();
+      const record = {
+        id,
+        displayName:displayName.slice(0,40),
+        message,
+        inReplyTo,
+        inReplyToName,
+        createdAt:new Date().toISOString()
+      };
+      await env.TRADE_LISTINGS.put("idea:"+id,JSON.stringify({...record,deleteToken}));
+      return jsonResponse({message:record,deleteToken},201,corsHeaders);
+    }
+
+    if (method === "DELETE") {
+      const body = await readJsonRequest(request,1024);
+      const id = cleanText(body.id);
+      const deleteToken = cleanText(body.deleteToken);
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidPattern.test(id) || !uuidPattern.test(deleteToken)) {
+        return jsonResponse({error:"Missing message removal details."},400,corsHeaders);
+      }
+      const key = "idea:"+id;
+      const record = await env.TRADE_LISTINGS.get(key,"json");
+      if (!record) return jsonResponse({error:"That message has already been removed."},404,corsHeaders);
+      if (record.deleteToken !== deleteToken) {
+        return jsonResponse({error:"Only the person who posted this message can remove it."},403,corsHeaders);
+      }
+      await env.TRADE_LISTINGS.delete(key);
+      return jsonResponse({removed:true},200,corsHeaders);
+    }
+
+    return jsonResponse({error:"Method not allowed."},405,corsHeaders);
+  } catch (error) {
+    if (error instanceof RequestInputError) {
+      return jsonResponse({error:error.message},error.status,corsHeaders);
+    }
+    console.error("Idea board request failed:",error instanceof Error ? error.name : "UnknownError");
+    return jsonResponse({error:"The idea board could not complete that request."},500,corsHeaders);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -233,6 +344,7 @@ export default {
 
     const path = new URL(request.url).pathname.replace(/\/+$/,"") || "/";
     if (path === "/trades") return handleTrades(request,env,corsHeaders);
+    if (path === "/ideas") return handleIdeas(request,env,corsHeaders);
     if (path !== "/generate") return new Response("Not found",{status:404,headers:corsHeaders});
 
     if (request.method !== "POST") {

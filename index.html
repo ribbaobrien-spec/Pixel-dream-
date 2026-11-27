@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hello-world-curly-water-4b09.ribbaobrien.workers.dev https://challenges.cloudflare.com; manifest-src 'self'; worker-src 'self'; frame-src https://challenges.cloudflare.com; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#090b16">
-  <meta name="description" content="Create AI wallpapers, business logos, and swap offers with Pixel Dream.">
+  <meta name="description" content="Create wallpapers, design logos, swap with companies, and share ideas with Pixel Dream.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/app-icon-192.png">
   <link rel="apple-touch-icon" href="./icons/app-icon-192.png">
-  <title>Pixel Dream — Creative Studio &amp; Company Exchange</title>
+  <title>Pixel Dream — Creative Studio, Company Exchange &amp; Ideas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,6 +33,7 @@
     <div class="workspace-switch" role="tablist" aria-label="Choose a Pixel Dream area">
       <button id="createWorkspaceTab" class="workspace-tab" type="button" role="tab" aria-selected="true" aria-controls="createWorkspace">✦ &nbsp;Create</button>
       <button id="exchangeWorkspaceTab" class="workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="exchangeWorkspace">⇄ &nbsp;Company exchange</button>
+      <button id="ideasWorkspaceTab" class="workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="ideasWorkspace">✉ &nbsp;Ideas &amp; chat</button>
     </div>
     <div id="createWorkspace" role="tabpanel" aria-labelledby="createWorkspaceTab">
     <section class="intro">
@@ -146,10 +147,40 @@
         </div>
       </div>
     </section>
-    <footer><span>✦ PIXEL DREAM</span><span>Made for the screens and businesses you love.</span></footer>
+    <section id="ideasWorkspace" class="exchange-workspace" role="tabpanel" aria-labelledby="ideasWorkspaceTab" hidden>
+      <section class="exchange-intro">
+        <div class="eyebrow"><span>✧</span> YOUR IDEAS SHAPE WHAT’S NEXT.</div>
+        <h1>Let’s <span>talk.</span></h1>
+        <p class="intro-copy">Leave me a note, ask a question, or share an idea with the Pixel Dream community.</p>
+      </section>
+      <div class="exchange-grid ideas-grid">
+        <form id="ideaForm" class="panel exchange-form">
+          <div class="panel-heading"><div><span class="step">01</span><h2>Start a conversation</h2></div><span class="sparkle">✧</span></div>
+          <p class="exchange-note">Posts appear on a public board so people can join in. Please don’t share private contact details.</p>
+          <div class="field"><label for="ideaDisplayName">DISPLAY NAME <span class="optional">OPTIONAL</span></label><input id="ideaDisplayName" name="displayName" maxlength="40" autocomplete="nickname" placeholder="Dreamer"></div>
+          <div class="field"><label for="ideaMessage">YOUR MESSAGE OR IDEA</label><textarea id="ideaMessage" name="message" maxlength="500" required placeholder="What would you love Pixel Dream to do next? Ask a question or reply to someone in the conversation."></textarea></div>
+          <p id="replyContext" class="reply-context" hidden><span id="replyContextText"></span><button id="cancelIdeaReply" class="cancel-reply" type="button">Cancel reply</button></p>
+          <input id="ideaWebsite" name="website" tabindex="-1" autocomplete="off" hidden>
+          <div class="turnstile-check">
+            <p>Complete the security check to share a message.</p>
+            <div id="ideaChallenge" class="turnstile-widget" aria-label="Idea board security check"></div>
+          </div>
+          <button id="postIdea" class="generate-btn" type="submit"><span>✧</span> Post to the conversation <span class="arrow">→</span></button>
+          <p id="ideaStatus" class="status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="panel idea-board">
+          <div class="listing-header"><div><span class="step">02</span><h2>Ideas &amp; conversation</h2></div><button id="refreshIdeas" class="refresh-btn" type="button">↻ Refresh</button></div>
+          <p class="exchange-note">I’d love to hear from you. Messages are public; use Reply to keep a conversation going.</p>
+          <p id="ideaBoardStatus" class="status idea-board-status" role="status" aria-live="polite"></p>
+          <div id="ideaFeed" class="idea-feed" aria-live="polite"><div class="listing-message">Open Ideas &amp; chat to load the conversation.</div></div>
+        </div>
+      </div>
+    </section>
+    <footer><span>✦ PIXEL DREAM</span><span>Made for your screens, businesses, and ideas.</span></footer>
   </main>
   <script src="script.js"></script>
   <script src="exchange.js"></script>
+  <script src="ideas.js"></script>
   <script src="./turnstile.js"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=pixelDreamTurnstileLoaded&amp;render=explicit" async defer></script>
   <script src="pwa.js" defer></script>
